@@ -12,14 +12,11 @@
 #include "ssd1306.h"
 #include "tasks.h"
 
-
 // Инициализация пина светодиода (PC13)
 void led_init(void) {
     GPIOC->MODER &= ~GPIO_MODER_MODE13;  
     GPIOC->MODER |= GPIO_MODER_MODE13_0;
 }
-
-
 
 int main(void) {
 
@@ -44,9 +41,6 @@ int main(void) {
     I2Cx_init(I2C1);
     DMA_init();
     Display_Init();
-
-
-
     Tasks_Create();
 
     // Запуск планировщика FreeRTOS
@@ -55,19 +49,3 @@ int main(void) {
     // Сюда программа никогда не должна дойти
     while (1) {}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -21,48 +21,7 @@ QueueHandle_t DisplayQueueHandle = NULL;
 
 SemaphoreHandle_t I2C1_MutexHandle = NULL; 
 
-// Глобальный буфер для строки (чтобы таска дисплея всегда имела к нему доступ)
-static char distance_str[32];
-
-
-void VL53L0X_SimpleInit(void);
-uint16_t VL53L0X_SimpleRead(void);
 void vLidarTask(void *argument);
-
-// Минимальная инициализация датчика «магическими» байтами из даташита
-void VL53L0X_SimpleInit(void) {
-    I2Cx_WriteReg(I2C1, VL53L0X_ADDR, 0x88, 0x00);
-    I2Cx_WriteReg(I2C1, VL53L0X_ADDR, 0x80, 0x01);
-    I2Cx_WriteReg(I2C1, VL53L0X_ADDR, 0xFF, 0x01);
-    I2Cx_WriteReg(I2C1, VL53L0X_ADDR, 0x00, 0x00);
-    I2Cx_WriteReg(I2C1, VL53L0X_ADDR, 0x91, I2Cx_ReadReg(I2C1, VL53L0X_ADDR, 0x91));
-    I2Cx_WriteReg(I2C1, VL53L0X_ADDR, 0x00, 0x01);
-    I2Cx_WriteReg(I2C1, VL53L0X_ADDR, 0xFF, 0x00);
-    I2Cx_WriteReg(I2C1, VL53L0X_ADDR, 0x80, 0x00);
-    
-    // Включение режима одиночного замера
-    I2Cx_WriteReg(I2C1, VL53L0X_ADDR, 0x00, 0x01); 
-}
-
-// Запуск измерения и чтение результата в мм
-uint16_t VL53L0X_SimpleRead(void) {
-    // Старт замера
-    I2Cx_WriteReg(I2C1, VL53L0X_ADDR, 0x00, 0x01); 
-
-    // Ждем, пока бит 0 в регистре статуса (0x13) станет равен 1
-    while ((I2Cx_ReadReg(I2C1, VL53L0X_ADDR, 0x13) & 0x01) == 0);
-
-    // Считываем старший и младший байты результата
-    uint8_t high = I2Cx_ReadReg(I2C1, VL53L0X_ADDR, 0x1E);
-    uint8_t low  = I2Cx_ReadReg(I2C1, VL53L0X_ADDR, 0x1F);
-
-    // Сбрасываем флаг прерывания в датчике для следующего замера
-    I2Cx_WriteReg(I2C1, VL53L0X_ADDR, 0x0B, 0x01);
-
-    return (high << 8) | low;
-}
-
-
 
 void Tasks_Create(void){
     // Хендлер очереди на 5 элементов, размер каждого элемента — размер указателя (4 байта)  
@@ -146,14 +105,10 @@ void vDisplayUpdateTask(void *argument){
     }
 }
 
-
-
-
-
 void vLidarTask(void *argument) {
     // Временно создаем указатель на обычную жестко зашитую строку в Flash-памяти
     // Она гарантированно не может переполнить буфер или испортить память
-    const char *test_text = "HELLO LIDAR";
+    const char *test_text = "!!!!!!!!!HELLO LIDAR";
 
     while(1) {
         // Просто раз в 500 мс отправляем строку на дисплей
@@ -162,4 +117,3 @@ void vLidarTask(void *argument) {
         xQueueSend(DisplayQueueHandle, &test_text, portMAX_DELAY);
     }
 }
-

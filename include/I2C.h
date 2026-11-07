@@ -10,8 +10,4 @@ void I2Cx_StartReading(I2C_TypeDef *I2Cx, uint8_t target_addr, uint8_t reg_byte)
 void I2Cx_StopTransfer(I2C_TypeDef *I2Cx);
 void I2Cx_SendCmd(I2C_TypeDef *I2Cx, uint8_t target_addr, uint8_t control_byte, uint8_t cmd);
 
-uint8_t I2Cx_ReadReg(I2C_TypeDef *I2Cx, uint8_t target_addr, uint8_t reg_addr);
-void I2Cx_WriteReg(I2C_TypeDef *I2Cx, uint8_t target_addr, uint8_t reg_addr, uint8_t value);
-
-
 #endif
