@@ -114,6 +114,12 @@ void FrameBuffer_Clear(void){
 // Рендер символа в байты и запись в буфер ОЗУ
 void FrameBuffer_WriteChar(uint8_t *frame_buffer, char ascii_char, uint8_t x, uint8_t page){
 
+    // Защита от выхода за пределы 8 страница (0..7) и 128 колонок (0..127)
+    // Обусловлено дисплеем SSD1306
+    if (page >= (DISPLAY_HEIGHT / 8) || x >= DISPLAY_WIDTH) {
+        return;
+    }
+
     // Защита от выхода за границы ASCII таблицы (массив содержит коды 32...126)
     if (ascii_char < 32 || ascii_char > 126) {
         ascii_char = 32; // Если символ некорректный, заменяем на пробел
@@ -123,13 +129,13 @@ void FrameBuffer_WriteChar(uint8_t *frame_buffer, char ascii_char, uint8_t x, ui
     uint16_t font_offset = (ascii_char - 32) * FONT_WIDTH;
 
     // Стартовый адрес (индекс) в frame buffer дисплея
-    uint16_t fb_idx = (page * DISPLAY_WIDTH) + x;    
+    uint16_t fb_idx = (page * DISPLAY_WIDTH) + x;
 
     // Выборка битмап переданного символа
     for (uint8_t i= 0; i < FONT_WIDTH; i++){
 
-        //Защита от случайного выхода за предел DISPLAY_BUFFER_SIZE. В частности, при некорректно переданных Х и PAGE
-        if (fb_idx > DISPLAY_BUFFER_SIZE) return;
+        //Защита от выхода за предел DISPLAY_BUFFER_SIZE перед инкрементом
+        if (fb_idx >= DISPLAY_BUFFER_SIZE) return;
 
         frame_buffer[fb_idx++] = Display_Font5x7[font_offset++];
     }    
@@ -139,7 +145,7 @@ void FrameBuffer_WriteChar(uint8_t *frame_buffer, char ascii_char, uint8_t x, ui
 }
 
 // Посимвольный рендер переданной строки в буфер ОЗУ
-void FrameBuffer_WriteString(uint8_t *frame_buffer, char *str, uint8_t x, uint8_t page){
+void FrameBuffer_WriteString(uint8_t *frame_buffer, const char *str, uint8_t x, uint8_t page){
 
     while (*str){
 

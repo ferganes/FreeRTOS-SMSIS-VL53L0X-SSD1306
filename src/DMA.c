@@ -8,14 +8,21 @@
 // Настройка DMA1 Stream 6
 void DMA_init(void){
 
-    DMA1_Stream6->CR &= ~DMA_SxCR_EN; // Отключаем стрим
+    // Отключаем стрим перед настройкой
+    DMA1_Stream6->CR &= ~DMA_SxCR_EN; 
+
+    // Ждем подтверждения отключения стрима
     while(DMA1_Stream6->CR & DMA_SxCR_EN);
 
-    DMA1_Stream6->CR = 0; // Сброс регистра CR
+    // Полный сброс регистра управления CR
+    DMA1_Stream6->CR = 0;
 
-    DMA1_Stream6->PAR  = (uint32_t)&(I2C1->DR);       // Куда посылаем : регистр данных I2C
-    DMA1_Stream6->M0AR = (uint32_t)FrameBuffer_GetBuffer(); // Откуда посылаем: frame_buffer
+    // Куда посылаем : регистр данных I2C
+    DMA1_Stream6->PAR  = (uint32_t)&(I2C1->DR);       
+    // Откуда посылаем: frame_buffer
+    DMA1_Stream6->M0AR = (uint32_t)FrameBuffer_GetBuffer(); 
 
+    // Сдвиги выбраны специально, можно и через дефайны, но зачем
     DMA1_Stream6->CR |= (1U << 25); // CHSEL: Channel 1
     DMA1_Stream6->CR |= (1U << 6);  // DIR: Memory-to-peripheral
     DMA1_Stream6->CR |= (1U << 10); // MINC: инкремент адреса памяти

@@ -13,6 +13,6 @@ size_t   FrameBuffer_GetSize(void);
 
 void FrameBuffer_Clear();
 void FrameBuffer_WriteChar(uint8_t *frame_buffer, char ascii_char, uint8_t x, uint8_t page);
-void FrameBuffer_WriteString(uint8_t *frame_buffer, char *str, uint8_t x, uint8_t page);
+void FrameBuffer_WriteString(uint8_t *frame_buffer, const char *str, uint8_t x, uint8_t page);
 
 #endif
